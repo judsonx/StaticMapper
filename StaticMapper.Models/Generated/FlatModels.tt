@@ -1,0 +1,113 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Runtime.Extensions" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System" #>
+<#@ output extension=".cs" #>
+namespace StaticMapper.Models.Generated
+{
+<#
+  var rand = new Random(1);
+
+  var types = new[]
+  {
+    "int",
+    "decimal",
+    "double",
+    "string",
+  };
+
+  var adjectives = new[]
+  {
+    "fun",
+    "green",
+    "blue",
+    "quick",
+    "yellow",
+    "large",
+    "small",
+    "tiny",
+    "incredible",
+    "scary",
+    "brown",
+    "awesome",
+    "terrible",
+  };
+
+  var nouns = new[]
+  {
+    "tree",
+    "leaf",
+    "branch",
+    "trunk",
+    "car",
+    "door",
+    "human",
+    "dog",
+    "cat",
+    "mouse",
+    "house",
+    "desk",
+    "garage",
+  };
+
+  const int ModelCount = 500;
+#>
+  public class ModelTypeCollection
+  {
+    public static System.Type[] ModelTypes
+    {
+      get
+      {
+        return new System.Type[]
+        {
+<#
+  for (var i = 0; i < ModelCount; ++i)
+  {
+#>
+          typeof(Model<#= i + 1  #>),
+<#
+  }
+#>
+        };
+      }
+    }
+  }
+<#
+
+  for (int i = 0; i < ModelCount; ++i)
+  {
+    var nProps = rand.Next(0, 20);
+#>
+  public class Model<#= i + 1 #>
+  {
+<#
+    var propRand = new Random(1);
+    var props = new Dictionary<string, string>();
+    for (int j = 0; j < nProps; ++j)
+    {
+      var adjIndex = propRand.Next(0, adjectives.Count());
+      var nounIndex = propRand.Next(0, nouns.Count());
+      var typeIndex = adjIndex % types.Count();
+      var adj = adjectives[adjIndex];
+      var adjPick = adj.Substring(0, 1).ToUpper() + adj.Substring(1);
+      var noun = nouns[nounIndex];
+      var nounPick = noun.Substring(0, 1).ToUpper() + noun.Substring(1);
+      var typePick = types[typeIndex];
+      var propertyName = adjPick + nounPick;
+      props[propertyName] = typePick;
+    }
+    foreach(var prop in props)
+    {
+#>
+    public <#= prop.Value #> <#= prop.Key #> { get; set; }
+<#
+    }
+#>
+  }
+<#
+  }
+#>
+}

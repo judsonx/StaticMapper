@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28010.2041
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaticMapper", "StaticMapper\StaticMapper.csproj", "{DFD47734-FED8-4F03-8927-F7585B9C0A50}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaticMapper.Models", "StaticMapper.Models\StaticMapper.Models.csproj", "{522D125F-D727-4881-AD07-D0D2CF745A2C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{DFD47734-FED8-4F03-8927-F7585B9C0A50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFD47734-FED8-4F03-8927-F7585B9C0A50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFD47734-FED8-4F03-8927-F7585B9C0A50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{522D125F-D727-4881-AD07-D0D2CF745A2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{522D125F-D727-4881-AD07-D0D2CF745A2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{522D125F-D727-4881-AD07-D0D2CF745A2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{522D125F-D727-4881-AD07-D0D2CF745A2C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

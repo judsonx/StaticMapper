@@ -1,0 +1,133 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Runtime.Extensions" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ assembly name="$(SolutionDir)StaticMapper.Models\bin\Debug\StaticMapper.Models.dll" #>
+<#@ import namespace="StaticMapper.Models" #>
+<#@ import namespace="StaticMapper.Models.Generated" #>
+<#@ output extension=".cs" #>
+using StaticMapper.Models.Generated;
+using System.Collections.Generic;
+
+namespace StaticMapper.StaticMappings
+{
+<#
+  var modelTypes = ModelTypeCollection.ModelTypes;
+
+  var tuples = new List<Tuple<string, string, string>>();
+  for (int i = 1; i < modelTypes.Count(); ++i)
+  {
+    var modelType = modelTypes[i-1];
+    var destModelType = modelTypes[i];
+
+    var sourceProperties = modelType.GetProperties();
+    var destProperties = destModelType.GetProperties();
+
+    var mapName = string.Format("{0}To{1}",  modelType.Name, destModelType.Name);
+    tuples.Add(Tuple.Create(modelType.Name, destModelType.Name, mapName));
+    var mappableProperties = new List<string>();
+    foreach(var sourceProp in sourceProperties)
+    {
+      var destProp = destProperties.SingleOrDefault(d => d.Name == sourceProp.Name);
+      if (destProp == null)
+        continue;
+
+      if (sourceProp.PropertyType == destProp.PropertyType)
+      {
+        mappableProperties.Add(sourceProp.Name);
+      }
+    }
+#>
+  public class <#= mapName #> : IStaticMap
+  {
+    public object Map(object source)
+    {
+      return Map((<#= modelType.Name #>) source);
+    }
+
+    public void Map(object source, object destination)
+    {
+      Map((<#= modelType.Name #>) source, (<#= destModelType.Name #>) destination);
+    }
+
+    public <#= destModelType.Name #> Map(<#= modelType.Name #> model)
+    {
+      var result = new <#= destModelType.Name #>
+      {
+<#
+    foreach(var prop in mappableProperties)
+    {
+#>
+        <#= prop #> = model.<#= prop #>,
+<#
+    }
+#>
+      };
+      return result;
+    }
+
+    public void Map(<#= modelType.Name #> model, <#= destModelType.Name #> destModel)
+    {
+<#
+    foreach(var prop in mappableProperties)
+    {
+#>
+      destModel.<#= prop #> = model.<#= prop #>;
+<#
+    }
+#>
+    }
+  }
+<#
+  }
+#>
+  public class StaticMapRegistry
+  {
+    private Dictionary<MapKey, IStaticMap> _maps;
+
+    public IStaticMap GetMap<TModel, TDestModel>()
+    {
+      IStaticMap map;
+      var key = new MapKey { T0 = typeof(TModel), T1 = typeof(TDestModel) };
+      if (_maps.TryGetValue(key, out map))
+        return map;
+      return null;
+    }
+
+    public IStaticMap GetMap<TDestModel>(object source)
+    {
+      IStaticMap map;
+      var key = new MapKey { T0 = source.GetType(), T1 = typeof(TDestModel) };
+      if (_maps.TryGetValue(key, out map))
+        return map;
+      return null;
+    }
+
+    public TDestModel Map<TDestModel>(object sourceModel)
+    {
+      var map = GetMap<TDestModel>(sourceModel);
+      return (TDestModel) map.Map(sourceModel);
+    }
+
+    public void Initialize()
+    {
+      var maps = new Dictionary<MapKey, IStaticMap>
+      {
+<#
+  foreach (var t in tuples)
+  {
+#>
+        {
+          new MapKey { T0 = typeof(<#= t.Item1 #>), T1 = typeof(<#= t.Item2 #>) },
+          new <#= t.Item3 #>()
+        },
+<#
+  }
+#>
+      };
+      _maps = maps;
+    }
+  }
+}
